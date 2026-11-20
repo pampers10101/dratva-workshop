@@ -1,0 +1,440 @@
+@import "tailwindcss";
+
+:root {
+  --canvas-void: #0B0C10;
+  --surface-plate: #13151B;
+  --surface-chrome: #1A1D26;
+  --ink-primary: #EEF1F6;
+  --ink-secondary: #A2ABBC;
+  --ink-muted: #768095;
+  --chrome-silver: #DCE3EF;
+  --chrome-line: rgba(220, 227, 239, 0.14);
+  --chrome-line-strong: rgba(220, 227, 239, 0.28);
+  --accent-ember: #E85D2A;
+  --accent-ember-hover: #FF713D;
+  --accent-mint: #52E0A1;
+  /* Theme pattern variables (defaults from obsidian-ember) */
+  --pattern-primary: #E85D2A;
+  --pattern-secondary: #52E0A1;
+  --pattern-accent: #DCE3EF;
+  /* Dimmed pattern line color for text readability on atelier backgrounds.
+     Mixed at ~8% opacity against canvas-void so grid/hairlines stay subtle. */
+  --pattern-line: color-mix(in srgb, var(--pattern-accent) 8%, transparent);
+  --pattern-opacity: 0.06;
+  --pattern-scale: 1.0;
+  --mesh-gradient-1: rgba(232, 93, 42, 0.12);
+  --mesh-gradient-2: rgba(82, 224, 161, 0.08);
+  --mesh-gradient-3: rgba(220, 227, 239, 0.04);
+  --grid-color: #E85D2A;
+  --grid-opacity: 0.03;
+  --grain-opacity: 0.04;
+  --vignette-strength: 0.35;
+}
+
+html {
+  /* scroll-behavior: smooth removed - causes layout shifts and page jumping on interactive elements */
+  overflow-x: clip;
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--canvas-void);
+  color: var(--ink-primary);
+  letter-spacing: 0.008em;
+}
+
+body {
+  overflow-x: clip;
+  background-color: var(--canvas-void);
+  color: var(--ink-primary);
+}
+
+section[id] {
+  scroll-margin-top: 4.5rem;
+}
+
+.font-display {
+  font-family: 'Unbounded', 'Manrope', sans-serif;
+}
+
+.font-mono-craft {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dynamic theme-aware background patterns using CSS variables */
+/* Harmonious Neo-Y2K workshop drafting grid with warm studio wash */
+.y2k-grid-bg {
+  background-image:
+    radial-gradient(var(--pattern-primary) 1px, transparent 1px),
+    linear-gradient(to right, var(--pattern-accent) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--pattern-accent) 1px, transparent 1px);
+  background-size:
+    calc(38px * var(--pattern-scale)) calc(38px * var(--pattern-scale)),
+    calc(114px * var(--pattern-scale)) calc(114px * var(--pattern-scale)),
+    calc(114px * var(--pattern-scale)) calc(114px * var(--pattern-scale));
+  opacity: var(--pattern-opacity);
+}
+
+/* Deep atelier canvas: brushed chrome top wash + accent glow + fine tactile grain.
+   Pattern lines are dimmed via color-mix so white body text stays readable over them. */
+.workshop-atelier-dark {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background-color: var(--canvas-void);
+  background-image:
+    radial-gradient(620px 340px at 14% 6%, var(--mesh-gradient-1), transparent 72%),
+    radial-gradient(540px 360px at 88% 92%, var(--mesh-gradient-2), transparent 74%),
+    radial-gradient(var(--pattern-line) 1px, transparent 1px),
+    linear-gradient(to right, var(--pattern-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--pattern-line) 1px, transparent 1px);
+  background-size:
+    100% 100%, 100% 100%,
+    calc(38px * var(--pattern-scale)) calc(38px * var(--pattern-scale)),
+    calc(114px * var(--pattern-scale)) calc(114px * var(--pattern-scale)),
+    calc(114px * var(--pattern-scale)) calc(114px * var(--pattern-scale));
+}
+
+/* Alternating charcoal workbench plate: fine diagonal saddle-stitch hairline + opposing studio light balance.
+   Diagonal hairline dimmed via --pattern-line so text remains readable. */
+.workshop-atelier-slate {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background-color: var(--surface-plate);
+  background-image:
+    radial-gradient(640px 340px at 86% 10%, var(--mesh-gradient-1), transparent 72%),
+    radial-gradient(520px 340px at 12% 88%, var(--mesh-gradient-2), transparent 74%),
+    repeating-linear-gradient(
+      -45deg,
+      var(--pattern-line) 0px,
+      var(--pattern-line) 1px,
+      transparent 1px,
+      transparent calc(20px * var(--pattern-scale))
+    );
+}
+
+/* Theme-aware mesh gradient background for hero and key sections */
+.workshop-mesh-bg {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background-color: var(--canvas-void);
+  background-image:
+    radial-gradient(700px 400px at 10% 0%, var(--mesh-gradient-1), transparent 65%),
+    radial-gradient(600px 350px at 90% 100%, var(--mesh-gradient-2), transparent 70%),
+    radial-gradient(500px 500px at 50% 50%, var(--mesh-gradient-3), transparent 60%),
+    radial-gradient(var(--pattern-accent) 1px, transparent 1px);
+  background-size:
+    100% 100%, 100% 100%, 100% 100%,
+    calc(40px * var(--pattern-scale)) calc(40px * var(--pattern-scale));
+}
+
+/* Theme-aware grain overlay */
+.workshop-grain-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+
+/* Theme-aware vignette overlay */
+.workshop-vignette::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    var(--canvas-void) calc(100% * var(--vignette-strength))
+  );
+}
+
+/* Theme-aware grid pattern overlay */
+.workshop-grid-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: var(--grid-opacity);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: calc(60px * var(--pattern-scale)) calc(60px * var(--pattern-scale));
+}
+
+/* Subtle stitched hairline border accent between sections */
+.seam-divider {
+  position: relative;
+  border-bottom: 1px solid var(--chrome-line);
+}
+
+.seam-divider::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: min(220px, 42vw);
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, var(--accent-ember), var(--chrome-silver), transparent);
+  pointer-events: none;
+}
+
+/* Brushed chrome-silver architectural surface with refined top-edge specular rim */
+.chrome-surface {
+  background: linear-gradient(
+    148deg,
+    var(--surface-chrome) 0%,
+    var(--surface-plate) 54%,
+    var(--surface-chrome) 100%
+  );
+  border: 1px solid var(--chrome-line);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.095),
+    0 18px 42px rgba(0, 0, 0, 0.38);
+  transition: border-color 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chrome-surface-interactive:hover {
+  border-color: var(--chrome-line-strong);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 22px 50px rgba(0, 0, 0, 0.48);
+}
+
+/* Liquid brushed silver metallic headline highlight */
+.chrome-metallic-text {
+  background: linear-gradient(
+    180deg,
+    var(--ink-primary) 0%,
+    var(--chrome-silver) 45%,
+    var(--ink-secondary) 75%,
+    var(--ink-primary) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Metallic sweep reflection on interactive buttons & panels */
+.chrome-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.chrome-sheen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 26%,
+    rgba(255, 255, 255, 0.18) 48%,
+    rgba(255, 255, 255, 0.05) 54%,
+    transparent 70%
+  );
+  transform: translate3d(-120%, 0, 0);
+  transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.chrome-sheen:hover::before {
+  transform: translate3d(120%, 0, 0);
+}
+
+/* Infinite smooth kinetic marquee strip (compositor-only) */
+@keyframes y2kMarquee {
+  0% {
+    transform: translate3d(0%, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: y2kMarquee 32s linear infinite;
+}
+
+.marquee-shell:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Pure CSS + IntersectionObserver cascade reveal (compositor-only) */
+.reveal-section {
+  opacity: 0;
+  transform: translate3d(0, 20px, 0);
+  transition:
+    opacity 580ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 580ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal-section.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Word-by-word headline entrance */
+.hero-word-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+  padding-bottom: 0.08em;
+}
+
+.hero-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, 105%, 0);
+  animation: heroWordRise 640ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: var(--word-delay, 0ms);
+}
+
+@keyframes heroWordRise {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 105%, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Stamped seal impact */
+@keyframes stampImpact {
+  0% {
+    opacity: 0;
+    transform: scale(1.2) rotate(-5deg);
+  }
+  65% {
+    opacity: 0.98;
+    transform: scale(0.97) rotate(-1.5deg);
+  }
+  100% {
+    opacity: 0.94;
+    transform: scale(1) rotate(-2deg);
+  }
+}
+
+.stamp-impact {
+  animation: stampImpact 260ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Subtle crosshair lock ring for Gallery Loupe focus target */
+@keyframes loupeReticleSettle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.35);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.loupe-reticle-lock {
+  animation: loupeReticleSettle 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Nav link animated metallic underline */
+.nav-chrome-link {
+  position: relative;
+}
+
+.nav-chrome-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -4px;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--accent-ember), var(--chrome-silver));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.nav-chrome-link:hover::after,
+.nav-chrome-link:focus-visible::after,
+.nav-chrome-link.is-active::after {
+  transform: scaleX(1);
+}
+
+/* Accessible focus outlines */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent-ember);
+  outline-offset: 2px;
+}
+
+/* Chrome range input for Before/After comparison */
+input[type='range'].comparison-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: ew-resize;
+}
+
+input[type='range'].comparison-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--ink-primary), var(--ink-secondary));
+  border: 2px solid var(--canvas-void);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+}
+
+input[type='range'].comparison-slider::-moz-range-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--ink-primary), var(--ink-secondary));
+  border: 2px solid var(--canvas-void);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .reveal-section,
+  .reveal-section.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .hero-word {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .marquee-track {
+    animation: none !important;
+  }
+
+  .chrome-sheen::before {
+    display: none !important;
+  }
+
+  .stamp-impact,
+  .loupe-reticle-lock {
+    animation: none !important;
+    opacity: 0.96 !important;
+  }
+}
