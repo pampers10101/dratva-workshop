@@ -16,7 +16,6 @@ import { ServicesSection } from './components/ServicesSection';
 import { TestimonialsAndIntake } from './components/TestimonialsAndIntake';
 import { AuthProvider } from './context/AuthContext';
 import { StructuredData } from './components/StructuredData';
-import { LazySection } from './components/LazySection';
 import {
   calculateEstimate,
   formatRubles,
@@ -47,7 +46,82 @@ function loadBestPromo(): { pct: number; code: string | null } {
   }
 }
 
+/**
+ * Smooth anchor scroll via delegated click handler.
+ * Native scroll-behavior:smooth is intentionally NOT set in CSS — it fights with
+ * scroll-spy, progress bar updates and animated card re-renders.
+ * Here we manually animate scroll to target element using requestAnimationFrame
+ * so the transition is buttery and never triggers a layout-jump re-render.
+ */
+function useSmoothAnchorScroll() {
+  useEffect(() => {
+    const handleAnchorClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target || !target.closest) return;
+      const anchor = target.closest('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!anchor) return;
+
+      const href = anchor.getAttribute('href') || '';
+      const id = href.slice(1);
+      if (!id) return;
+
+      // ALWAYS prevent default to avoid browser hard navigation / teleport / page reload
+      event.preventDefault();
+      event.stopPropagation();
+
+      const element = document.getElementById(id);
+      if (!element) {
+        // Fallback: if element not yet in DOM (e.g. lazy section), try to find a
+        // data-lazy-id marker, or estimate position by section order. As a last resort,
+        // just scroll to the bottom so user lands near expected area.
+        // We also trigger a re-query after a short delay in case lazy mount is pending.
+        const lazyMarker = document.querySelector(`[data-lazy-id="${id}"]`);
+        if (lazyMarker) {
+          lazyMarker.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          // As a robust fallback, scroll to bottom — most anchor targets are near end
+          window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+        return;
+      }
+
+      const startY = window.scrollY;
+      const targetY = element.getBoundingClientRect().top + startY;
+      const distance = targetY - startY;
+      const duration = 780;
+      let start: number | null = null;
+
+      const tick = (now: number) => {
+        if (start === null) start = now;
+        const elapsed = now - start;
+        const progress = Math.min(1, elapsed / duration);
+        // easeInOutCubic
+        const eased =
+          progress < 0.5
+            ? 4 * progress * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+        window.scrollTo(0, startY + distance * eased);
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          window.scrollTo(0, targetY);
+          // Update URL hash without jumping
+          if (history.replaceState) {
+            history.replaceState(null, '', `#${id}`);
+          }
+        }
+      };
+
+      requestAnimationFrame(tick);
+    };
+
+    document.addEventListener('click', handleAnchorClick, { capture: true });
+    return () => document.removeEventListener('click', handleAnchorClick, { capture: true });
+  }, []);
+}
+
 export default function App() {
+  useSmoothAnchorScroll();
   const [itemType, setItemType] = useState<LeatherItemId>('briefcase');
   const [repairIds, setRepairIds] = useState<RepairOperationId[]>(['scuffs_dye', 'edge_handles']);
   const [activeServiceIndexes, setActiveServiceIndexes] = useState<number[]>([0]); // Track which services are explicitly toggled on
@@ -209,7 +283,9 @@ export default function App() {
     // The tab content animates in place via Framer Motion
   };
 
-  const MainContent = () => (
+  // JSX-разметка главной страницы собирается инлайн (НЕ как вложенный компонент),
+  // иначе при каждом изменении state React перемонтировал бы всю страницу целиком.
+  const mainContent = (
     <>
       <StructuredData />
       <a
@@ -232,14 +308,17 @@ export default function App() {
           onToggleServicePreset={handleToggleServicePreset}
         />
         <RestorationGallery onSelectCasePreset={handleSelectGalleryPreset} />
-        <LazySection heightClass="min-h-[70vh]">
-          <RestorationMiniGame
-            bestDiscountPct={bestPromo.pct}
-            bestPromoCode={bestPromo.code}
-            onRecordResult={handleRecordGameResult}
-            onApplyPromoToCalculator={handleApplyPromoToCalculator}
-          />
-        </LazySection>
+        {/* RestorationMiniGame and CraftLoungeSection are NO LONGER wrapped in LazySection.
+            Their section IDs (workbench-game, craft-lounge) must ALWAYS be in the DOM
+            so anchor links (#workbench-game, #craft-lounge) from Header, Hero, PriceEstimator,
+            TestimonialsAndIntake, Footer, etc. work instantly without teleporting or
+            opening as separate links. */}
+        <RestorationMiniGame
+          bestDiscountPct={bestPromo.pct}
+          bestPromoCode={bestPromo.code}
+          onRecordResult={handleRecordGameResult}
+          onApplyPromoToCalculator={handleApplyPromoToCalculator}
+        />
         <PriceEstimator
           itemType={itemType}
           repairIds={repairIds}
@@ -253,13 +332,11 @@ export default function App() {
           onPromoCodeChange={setPromoCode}
           onTransferToIntake={handleTransferToIntake}
         />
-        <LazySection heightClass="min-h-[50vh]">
-          <CraftLoungeSection
-            activeTab={loungeTab}
-            onTabChange={setLoungeTab}
-            onAddEmergencyRepair={handleAddEmergencyRepair}
-          />
-        </LazySection>
+        <CraftLoungeSection
+          activeTab={loungeTab}
+          onTabChange={setLoungeTab}
+          onAddEmergencyRepair={handleAddEmergencyRepair}
+        />
         <TestimonialsAndIntake
             itemType={itemType}
             repairIds={repairIds}
@@ -332,7 +409,7 @@ export default function App() {
     <AuthProvider>
       <div className="min-h-screen bg-[#0B0C10] text-[#EEF1F6] antialiased selection:bg-[#E85D2A] selection:text-[#0B0C10]">
         <Routes>
-          <Route path="/" element={<MainContent />} />
+          <Route path="/" element={mainContent} />
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </div>

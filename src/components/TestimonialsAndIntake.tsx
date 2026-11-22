@@ -68,7 +68,7 @@ export function TestimonialsAndIntake({
   onOpenCraftQuiz,
 }: TestimonialsAndIntakeProps) {
   const reduced = usePrefersReducedMotion();
-  const { user, loading: authLoading, authError, signInWithGoogle, logout, getIdToken } = useAuth();
+  const { user, loading: authLoading, signInLoading, authError, signInWithGoogle, logout, getIdToken } = useAuth();
 
   // Reviews state (PostgreSQL backed with deterministic seed fallback)
   const [reviews, setReviews] = useState<SeedReview[]>(SEED_REVIEWS);
@@ -858,8 +858,11 @@ export function TestimonialsAndIntake({
                   ) : (
                     <button
                       type="button"
-                      onClick={signInWithGoogle}
-                      disabled={authLoading}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        signInWithGoogle();
+                      }}
+                      disabled={signInLoading}
                       className="inline-flex min-h-[38px] items-center gap-1.5 rounded-md border border-[rgba(220,227,239,0.24)] bg-[#0B0C10] px-3.5 py-1.5 text-xs font-semibold text-[#EEF1F6] transition-colors hover:border-[#E85D2A] hover:bg-[#E85D2A] hover:text-[#0B0C10] disabled:opacity-60 whitespace-nowrap shrink-0"
                     >
                       <LogIn className="h-3.5 w-3.5" aria-hidden="true" />

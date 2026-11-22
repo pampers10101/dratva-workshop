@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [signInLoading, setSignInLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,30 +28,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
+    // Duplicate-click prevention: if a sign-in is already in progress, don't trigger another
+    if (signInLoading) {
+      return;
+    }
     setAuthError(null);
+    setSignInLoading(true);
     try {
       await signInWithPopup(auth, googleAuthProvider);
     } catch (error: unknown) {
       const code = (error as { code?: string })?.code;
-      if (code === 'auth/popup-closed-by-user') {
-        setAuthError('Окно входа закрыто до завершения.');
-      } else if (code === 'auth/popup-blocked') {
-        // Popup blocked by browser — fall back to redirect flow
+
+      // Popup was closed by the user — no error shown, just silently ignore
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled') {
+        return;
+      }
+
+      // Popup already open — don't trigger another, show user-friendly message
+      if (code === 'auth/popup-already-open') {
+        setAuthError('Окно входа уже открыто. Проверьте открытые окна браузера.');
+        return;
+      }
+
+      // Popup blocked by browser — fall back to redirect flow
+      if (code === 'auth/popup-blocked') {
         try {
           await signInWithRedirect(auth, googleAuthProvider);
+          return;
         } catch (redirectError: unknown) {
           const redirectCode = (redirectError as { code?: string })?.code;
           setAuthError(
-            redirectCode === 'auth/popup-closed-by-user'
+            redirectCode === 'auth/popup-closed-by-user' || redirectCode === 'auth/cancelled'
               ? 'Окно входа закрыто до завершения.'
               : 'Не удалось войти через Google. Проверьте всплывающие окна.'
           );
+          return;
         }
-      } else {
-        setAuthError('Не удалось войти через Google. Проверьте всплывающие окна.');
       }
+
+      // Any other Firebase auth error — fall back to redirect as a reliable path
+      if (code && code.startsWith('auth/')) {
+        try {
+          await signInWithRedirect(auth, googleAuthProvider);
+          return;
+        } catch (redirectError: unknown) {
+          const redirectCode = (redirectError as { code?: string })?.code;
+          setAuthError(
+            redirectCode === 'auth/popup-closed-by-user' || redirectCode === 'auth/cancelled'
+              ? 'Окно входа закрыто до завершения.'
+              : 'Не удалось войти через Google. Проверьте всплывающие окна.'
+          );
+          return;
+        }
+      }
+
+      // Non-Firebase error (e.g. network) — try redirect as a last resort
+      try {
+        await signInWithRedirect(auth, googleAuthProvider);
+        return;
+      } catch (redirectError: unknown) {
+        const redirectCode = (redirectError as { code?: string })?.code;
+        setAuthError(
+          redirectCode === 'auth/popup-closed-by-user' || redirectCode === 'auth/cancelled'
+            ? 'Окно входа закрыто до завершения.'
+            : 'Не удалось войти через Google. Проверьте всплывающие окна.'
+        );
+      }
+    } finally {
+      // Guarantee loading state is always reset regardless of success, failure, or early return
+      setSignInLoading(false);
     }
-  }, []);
+  }, [signInLoading]);
 
   const logout = useCallback(async () => {
     setAuthError(null);
@@ -68,7 +116,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, authError, signInWithGoogle, logout, getIdToken }}
+      value={{
+        user,
+        loading,
+        signInLoading,
+        authError,
+        signInWithGoogle,
+        logout,
+        getIdToken,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -32,7 +32,9 @@
 }
 
 html {
-  /* scroll-behavior: smooth removed - causes layout shifts and page jumping on interactive elements */
+  /* Smooth anchor scroll handled explicitly via JS click delegation in App.tsx.
+     Native scroll-behavior:smooth is NOT used here because it fights with
+     scroll-spy, progress bar updates and animated card re-renders. */
   overflow-x: clip;
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--canvas-void);

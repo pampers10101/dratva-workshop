@@ -44,6 +44,7 @@ export interface RestorationCase {
   afterSummary: string;
   beforeImage: string;
   afterImage: string;
+  mirrorAfter?: boolean; // When true, scalesAfter layer horizontally so object orientation matches 'before'
   loupePoints: {
     x: number;
     y: number;
@@ -262,6 +263,7 @@ export const RESTORATION_CASES: RestorationCase[] = [
       'С изнанки подклеена тонкая перчаточная кожа 0.4 мм, стык сведён под аэрограф, манжета напитана и затонирована в заводской полумат.',
     beforeImage: '/src/assets/images/case_jacket_before_1795024456671.jpg',
     afterImage: '/src/assets/images/case_jacket_after_1795024456036.jpg',
+    mirrorAfter: true,
     loupePoints: [
       {
         x: 47,
@@ -300,6 +302,7 @@ export const RESTORATION_CASES: RestorationCase[] = [
       'Две мягкие вытяжки десалинизатором, глубокое жирование костным маслом, выравнивание коньячного тона и глассаж карнаубским воском.',
     beforeImage: '/src/assets/images/case_chelsea_before_1795024456436.jpg',
     afterImage: '/src/assets/images/case_chelsea_after_1795024457423.jpg',
+    mirrorAfter: true,
     loupePoints: [
       {
         x: 58,

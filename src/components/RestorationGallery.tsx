@@ -139,6 +139,7 @@ export function RestorationGallery({ onSelectCasePreset }: RestorationGalleryPro
       : RESTORATION_CASES.filter((item) => item.category === filter);
 
   const activeCase = visibleCases.find((item) => item.id === selectedId) ?? visibleCases[0];
+const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
   const activePoint = activeCase.loupePoints[activePointIdx] ?? activeCase.loupePoints[0];
   const activePreset = CASE_TO_PRESET[activeCase.id];
 
@@ -430,7 +431,9 @@ export function RestorationGallery({ onSelectCasePreset }: RestorationGalleryPro
             >
               {/* Shared Image Layer Container - ensures pixel-perfect alignment for both before/after */}
               <div className="absolute inset-0" style={{ overflowAnchor: 'none' }}>
-                {/* AFTER Layer (Base — Restored) - rendered as background for perfect alignment */}
+                {/* AFTER Layer (Base — Restored) - rendered as background for perfect alignment.
+                    When mirrorAfter is set, the after image is horizontally flipped so the
+                    object orientation (left/right) matches the 'before' photo pixel-perfectly. */}
                 {!failedImages[`after-${activeCase.id}`] ? (
                   <div
                     className="absolute inset-0"
@@ -439,6 +442,8 @@ export function RestorationGallery({ onSelectCasePreset }: RestorationGalleryPro
                       backgroundSize: 'cover',
                       backgroundPosition: 'center',
                       backgroundRepeat: 'no-repeat',
+                      transform: afterLayerFlip,
+                      transformOrigin: 'center',
                     }}
                     aria-hidden="true"
                   />
@@ -539,8 +544,10 @@ export function RestorationGallery({ onSelectCasePreset }: RestorationGalleryPro
                         style={{
                           backgroundImage: `url("${activeCase.afterImage}")`,
                           backgroundSize: `${magnifiedWidth}px ${magnifiedHeight}px`,
-                          backgroundPosition: '0 0',
+                          backgroundPosition: afterLayerFlip === 'scaleX(-1)' ? '100% 0' : '0 0',
                           backgroundRepeat: 'no-repeat',
+                          transform: afterLayerFlip,
+                          transformOrigin: 'center',
                         }}
                         aria-hidden="true"
                       />
