@@ -9,7 +9,9 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 import {
   applyHotspotScrub,
   calculateWorkbenchOutcome,
@@ -114,9 +116,11 @@ export function RestorationMiniGame({
   onRecordResult,
   onApplyPromoToCalculator,
 }: RestorationMiniGameProps) {
+  const reduced = usePrefersReducedMotion();
   const [difficultyId, setDifficultyId] = useState<GameDifficultyId>('standard');
   const [muted, setMuted] = useState(false);
   const [intermissionReady, setIntermissionReady] = useState(true);
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
 
   const activeDifficulty = GAME_DIFFICULTIES[difficultyId];
 
@@ -483,6 +487,7 @@ export function RestorationMiniGame({
         window.clearTimeout(intermissionTimerRef.current);
       }
       setIntermissionReady(true);
+      setAppliedPromoCode(null);
       const diffKey = overrideDiff ?? difficultyRef.current;
       const diffCfg = GAME_DIFFICULTIES[diffKey];
       const sim = simRef.current;
@@ -1702,7 +1707,13 @@ export function RestorationMiniGame({
 
             {/* Stage Intermission Gate Card (Pauses timer & prevents accidental Stage 3 misfires!) */}
             {hud.runState === 'stage_ready' && hud.intermissionInfo && (
-              <div className="relative z-20 flex min-h-[270px] items-center justify-center bg-[#0B0C10]/82 p-3 text-center sm:absolute sm:inset-0 sm:min-h-0 sm:p-5">
+              <motion.div
+                className="relative z-20 flex min-h-[270px] items-center justify-center bg-[#0B0C10]/82 p-3 text-center sm:absolute sm:inset-0 sm:min-h-0 sm:p-5"
+                initial={{ opacity: reduced ? 1 : 0, scale: reduced ? 1 : 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reduced ? 0 : 0.3 }}
+                exit={{ opacity: reduced ? 0 : 0.6, scale: reduced ? 0.8 : 1 }}
+              >
                 <div
                   data-testid="stage-intermission-card"
                   className="w-full max-w-md rounded-xl border border-[#52E0A1]/50 bg-[#12151C]/96 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.75)] sm:p-5"
@@ -1747,12 +1758,18 @@ export function RestorationMiniGame({
                     {intermissionReady ? hud.intermissionInfo.ctaLabel : 'Пауза безопасности...'}
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Pause Modal */}
             {hud.runState === 'paused' && (
-              <div className="relative z-20 flex min-h-[260px] items-center justify-center bg-[#0B0C10]/82 p-4 sm:absolute sm:inset-0 sm:min-h-0">
+              <motion.div
+                className="relative z-20 flex min-h-[260px] items-center justify-center bg-[#0B0C10]/82 p-4 sm:absolute sm:inset-0 sm:min-h-0"
+                initial={{ opacity: reduced ? 1 : 0, scale: reduced ? 1 : 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reduced ? 0 : 0.3 }}
+                exit={{ opacity: reduced ? 0 : 0.6, scale: reduced ? 0.8 : 1 }}
+              >
                 <div className="w-full max-w-sm rounded-xl border border-[rgba(220,227,239,0.24)] bg-[#13151B] p-6 text-center">
                   <p className="font-mono-craft text-xs text-[#A2ABBC]">ВЕРСТАК НА ПАУЗЕ</p>
                   <h3 className="font-display mt-2 text-lg font-bold text-[#EEF1F6]">
@@ -1775,12 +1792,18 @@ export function RestorationMiniGame({
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Timeout Modal */}
             {hud.runState === 'timeout' && (
-              <div className="relative z-20 flex min-h-[260px] items-center justify-center bg-[#0B0C10]/86 p-4 sm:absolute sm:inset-0 sm:min-h-0">
+              <motion.div
+                className="relative z-20 flex min-h-[260px] items-center justify-center bg-[#0B0C10]/86 p-4 sm:absolute sm:inset-0 sm:min-h-0"
+                initial={{ opacity: reduced ? 1 : 0, scale: reduced ? 1 : 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reduced ? 0 : 0.3 }}
+                exit={{ opacity: reduced ? 0 : 0.6, scale: reduced ? 0.8 : 1 }}
+              >
                 <div className="w-full max-w-md rounded-xl border border-[#E85D2A]/50 bg-[#13151B] p-6 text-center">
                   <p className="font-mono-craft text-xs font-semibold text-[#E85D2A]">
                     ВРЕМЯ СМЕНЫ ВЫШЛО
@@ -1802,12 +1825,18 @@ export function RestorationMiniGame({
                     Переиграть заново
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Victory Outcome Card (Skill-Based 5%-15% Discount Breakdown + Instant Replay) */}
             {hud.runState === 'victory' && hud.lastOutcome && (
-              <div className="relative z-20 flex min-h-[300px] items-center justify-center bg-[#0B0C10]/84 p-3 sm:absolute sm:inset-0 sm:min-h-0 sm:overflow-y-auto sm:p-5">
+              <motion.div
+                className="relative z-20 flex min-h-[300px] items-center justify-center bg-[#0B0C10]/84 p-3 sm:absolute sm:inset-0 sm:min-h-0 sm:overflow-y-auto sm:p-5"
+                initial={{ opacity: reduced ? 1 : 0, scale: reduced ? 1 : 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: reduced ? 0 : 0.3 }}
+                exit={{ opacity: reduced ? 0 : 0.6, scale: reduced ? 0.8 : 1 }}
+              >
                 <div
                   data-testid="game-victory-card"
                   className="w-full max-w-lg rounded-xl border border-[#52E0A1]/55 bg-[#12151C] p-4 text-center shadow-[0_24px_60px_rgba(0,0,0,0.75)] sm:p-6"
@@ -1860,17 +1889,23 @@ export function RestorationMiniGame({
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
                     <button
                       type="button"
-                      onClick={() =>
-                        onApplyPromoToCalculator(
-                          bestPromoCode && bestDiscountPct >= hud.lastOutcome!.discountPct
-                            ? bestPromoCode
-                            : hud.lastOutcome!.promoCode
-                        )
-                      }
-                      className="chrome-sheen min-h-[44px] rounded-md bg-[#52E0A1] px-5 py-2.5 text-xs font-bold text-[#0B0C10] transition-colors hover:bg-[#72EBB5] whitespace-nowrap"
+                      disabled={appliedPromoCode === (bestPromoCode && bestDiscountPct >= hud.lastOutcome!.discountPct ? bestPromoCode : hud.lastOutcome!.promoCode)}
+                      onClick={() => {
+                        const codeToApply = bestPromoCode && bestDiscountPct >= hud.lastOutcome!.discountPct
+                          ? bestPromoCode
+                          : hud.lastOutcome!.promoCode;
+                        onApplyPromoToCalculator(codeToApply);
+                        setAppliedPromoCode(codeToApply);
+                      }}
+                      className={`chrome-sheen min-h-[44px] rounded-md px-5 py-2.5 text-xs font-bold text-[#0B0C10] transition-colors whitespace-nowrap ${
+                        appliedPromoCode === (bestPromoCode && bestDiscountPct >= hud.lastOutcome!.discountPct ? bestPromoCode : hud.lastOutcome!.promoCode)
+                          ? 'bg-[#52E0A1]/50 cursor-default'
+                          : 'bg-[#52E0A1] hover:bg-[#72EBB5]'
+                      }`}
                     >
-                      Применить −
-                      {Math.max(bestDiscountPct, hud.lastOutcome.discountPct)}% в расчёт
+                      {appliedPromoCode === (bestPromoCode && bestDiscountPct >= hud.lastOutcome!.discountPct ? bestPromoCode : hud.lastOutcome!.promoCode)
+                        ? 'Скидка применена!'
+                        : `Применить −${Math.max(bestDiscountPct, hud.lastOutcome.discountPct)}% в расчёт`}
                     </button>
 
                     <button
@@ -1886,7 +1921,7 @@ export function RestorationMiniGame({
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
 
@@ -1908,10 +1943,18 @@ export function RestorationMiniGame({
               {bestPromoCode && bestDiscountPct > 0 && hud.runState !== 'victory' && (
                 <button
                   type="button"
-                  onClick={() => onApplyPromoToCalculator(bestPromoCode)}
-                  className="min-h-[38px] rounded-md border border-[#52E0A1]/45 bg-[#0B0C10] px-3 py-1.5 font-mono-craft text-[11px] font-semibold text-[#52E0A1] hover:bg-[#52E0A1] hover:text-[#0B0C10] whitespace-nowrap"
+                  disabled={appliedPromoCode === bestPromoCode}
+                  onClick={() => {
+                    onApplyPromoToCalculator(bestPromoCode);
+                    setAppliedPromoCode(bestPromoCode);
+                  }}
+                  className={`min-h-[38px] rounded-md border px-3 py-1.5 font-mono-craft text-[11px] font-semibold whitespace-nowrap transition-colors ${
+                    appliedPromoCode === bestPromoCode
+                      ? 'bg-[#52E0A1]/50 text-[#52E0A1] border-[#52E0A1]/50 cursor-default'
+                      : 'border-[#52E0A1]/45 bg-[#0B0C10] text-[#52E0A1] hover:bg-[#52E0A1] hover:text-[#0B0C10]'
+                  }`}
                 >
-                  В смету: {bestPromoCode} (−{bestDiscountPct}%)
+                  {appliedPromoCode === bestPromoCode ? 'Скидка применена!' : `В смету: ${bestPromoCode} (−${bestDiscountPct}%)`}
                 </button>
               )}
             </div>

@@ -1,5 +1,5 @@
 import { Check, ShieldAlert, Sparkles, X, Wrench, Layers, Palette, FileText, Lock } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { WORKSHOP_THEME_SCHEMES, applyThemeScheme, type ThemeScheme } from '../utils/themes';
 

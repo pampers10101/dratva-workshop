@@ -5,6 +5,7 @@ import { auth, googleAuthProvider } from '../lib/firebase';
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
+  signInLoading: boolean;
   authError: string | null;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;

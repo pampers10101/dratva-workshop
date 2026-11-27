@@ -1,5 +1,5 @@
 import { Menu, Phone, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 
 const NAV_ITEMS = [
@@ -76,12 +76,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-[rgba(220,227,239,0.12)] bg-[#0B0C10]/92 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <a
+        <motion.a
           href="#top"
           className="font-display chrome-metallic-text text-lg font-extrabold tracking-[0.04em] whitespace-nowrap shrink-0 sm:text-xl"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.98 }}
         >
           ДРАТВА
-        </a>
+        </motion.a>
 
         <nav
           aria-label="Основная навигация"
@@ -90,7 +92,7 @@ export function Header() {
           {NAV_ITEMS.map((item) => {
             const isActive = activeSectionId === item.id;
             return (
-              <a
+              <motion.a
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? 'location' : undefined}
@@ -99,15 +101,17 @@ export function Header() {
                     ? 'is-active font-semibold text-[#EEF1F6]'
                     : 'text-[#A2ABBC] hover:text-[#EEF1F6]'
                 }`}
+                whileHover={{ y: -1 }}
+                whileTap={{ y: 1 }}
               >
                 {item.label}
-              </a>
+              </motion.a>
             );
           })}
         </nav>
 
         <div className="flex items-center gap-2.5 shrink-0">
-          <a
+          <motion.a
             href="#intake"
             aria-current={intakeActive ? 'location' : undefined}
             className={`chrome-sheen hidden sm:inline-flex items-center justify-center rounded-md px-3.5 lg:px-4 py-2 text-xs font-bold tracking-wide transition-all whitespace-nowrap shrink-0 ${
@@ -115,20 +119,24 @@ export function Header() {
                 ? 'bg-[#EEF1F6] text-[#0B0C10] ring-1 ring-[#E85D2A]'
                 : 'bg-[#E85D2A] text-[#0B0C10] hover:bg-[#FF713D]'
             }`}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.95 }}
           >
             Приёмка и заявка
-          </a>
+          </motion.a>
 
-          <button
+          <motion.button
             type="button"
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-expanded={mobileOpen}
             aria-controls="mobile-workshop-nav"
             aria-label={mobileOpen ? 'Закрыть меню навигации' : 'Открыть меню навигации'}
             className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-[rgba(220,227,239,0.2)] bg-[#13151B] text-[#EEF1F6] md:hidden"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -156,33 +164,46 @@ export function Header() {
             className="border-t border-[rgba(220,227,239,0.12)] bg-[#0B0C10]/98 px-4 py-4 shadow-[0_24px_48px_rgba(0,0,0,0.75)] md:hidden"
           >
             <div className="flex flex-col gap-1">
-              {NAV_ITEMS.map((item) => {
+              {NAV_ITEMS.map((item, index) => {
                 const isActive = activeSectionId === item.id;
                 return (
-                  <a
+                  <motion.a
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className={`flex min-h-[44px] items-center justify-between border-b border-[rgba(220,227,239,0.08)] text-base font-medium ${
                       isActive ? 'text-[#E85D2A]' : 'text-[#EEF1F6]'
                     }`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.04 + index * 0.04, duration: 0.2 }}
                   >
                     <span>{item.label}</span>
                     {isActive && (
                       <span className="font-mono-craft text-[11px] text-[#E85D2A]">здесь</span>
                     )}
-                  </a>
+                  </motion.a>
                 );
               })}
-              <a
+              <motion.a
                 href="#intake"
                 onClick={() => setMobileOpen(false)}
                 className="mt-3 inline-flex min-h-[46px] items-center justify-center rounded-md bg-[#E85D2A] px-4 py-2.5 text-sm font-bold text-[#0B0C10]"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.04 + NAV_ITEMS.length * 0.04, duration: 0.2 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
               >
                 Приёмка в работу и статус
-              </a>
+              </motion.a>
 
-              <div className="mt-3 flex items-center justify-between border-t border-[rgba(220,227,239,0.08)] pt-3 text-xs text-[#A2ABBC]">
+              <motion.div
+                className="mt-3 flex items-center justify-between border-t border-[rgba(220,227,239,0.08)] pt-3 text-xs text-[#A2ABBC]"
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.04 + (NAV_ITEMS.length + 1) * 0.04, duration: 0.2 }}
+              >
                 <span>ул. Революционная, 70</span>
                 <a
                   href="tel:+79608115424"
@@ -191,7 +212,7 @@ export function Header() {
                   <Phone className="h-3.5 w-3.5 text-[#E85D2A]" aria-hidden="true" />
                   +7 (960) 811-54-24
                 </a>
-              </div>
+              </motion.div>
             </div>
           </motion.nav>
         )}

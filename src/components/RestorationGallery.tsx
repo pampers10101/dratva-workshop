@@ -1,8 +1,9 @@
 import { Calculator, Crosshair, Eye, MoveHorizontal } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { RESTORATION_CASES, type RestorationCase } from '../data/workshop';
 import type { LeatherItemId, RepairOperationId } from '../utils/estimator';
+import { usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 
 type CategoryFilter = 'all' | RestorationCase['category'];
 type LoupeZoom = 2.5 | 3.5;
@@ -62,6 +63,7 @@ interface RestorationGalleryProps {
 }
 
 export function RestorationGallery({ onSelectCasePreset }: RestorationGalleryProps) {
+  const reduced = usePrefersReducedMotion();
   const [filter, setFilter] = useState<CategoryFilter>('all');
   const [selectedId, setSelectedId] = useState<string>(RESTORATION_CASES[0].id);
   const [split, setSplit] = useState<number>(52);
@@ -240,6 +242,14 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
   const innerTranslateX = lensDiameter / 2 - (loupePos.x / 100) * magnifiedWidth;
   const innerTranslateY = lensDiameter / 2 - (loupePos.y / 100) * magnifiedHeight;
 
+  // Compensate after-layer translation when mirrorAfter=true
+  // The after image is flipped (scaleX(-1)), so loupePos.x on the before image
+  // corresponds to (100 - loupePos.x)% on the after image.
+  // We prepend a translateX before the flip to center the correct feature.
+  const afterFlipOffsetX = activeCase.mirrorAfter
+    ? ((2 * loupePos.x - 100) / 100) * magnifiedWidth
+    : 0;
+
   const straddlesSplit = Math.abs(loupePos.x - split) <= 4.5;
   const loupeShowsBefore = loupePos.x < split;
   const loupeReadoutText = straddlesSplit
@@ -274,16 +284,21 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
           className="mt-8 grid grid-cols-2 gap-2 rounded-xl border border-[rgba(220,227,239,0.14)] bg-[#0B0C10]/90 p-2 sm:grid-cols-4"
           style={{ overflowAnchor: 'none' }}
         >
-          {FILTER_OPTIONS.map((option) => {
+          {FILTER_OPTIONS.map((option, index) => {
             const active = filter === option.id;
             const count = categoryCounts[option.id];
             return (
-              <button
+              <motion.button
                 key={option.id}
                 type="button"
                 role="tab"
                 aria-selected={active}
                 onClick={() => handleCategoryChange(option.id)}
+                whileHover={reduced ? {} : { scale: 1.02 }}
+                whileTap={reduced ? {} : { scale: 0.96 }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.06, duration: 0.3 }}
                 className={`relative flex min-h-[46px] items-center justify-between gap-2 rounded-lg px-3.5 py-2.5 text-left text-xs font-semibold transition-colors sm:px-4 ${
                   active ? 'text-[#0B0C10]' : 'text-[#A2ABBC] hover:bg-[#151821] hover:text-[#EEF1F6]'
                 }`}
@@ -304,7 +319,7 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
                 >
                   0{count}
                 </span>
-              </button>
+              </motion.button>
             );
           })}
         </div>
@@ -313,14 +328,19 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
         <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
           {/* Left: Case Selector Cards */}
           <div className="flex flex-col gap-3 lg:col-span-4" style={{ overflowAnchor: 'none' }}>
-            {visibleCases.map((entry) => {
+            {visibleCases.map((entry, index) => {
               const selected = entry.id === activeCase.id;
               return (
-                <button
+                <motion.button
                   key={entry.id}
                   type="button"
                   onClick={() => handleSelectCase(entry)}
                   aria-pressed={selected}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: selected ? 1 : 0.85, y: selected ? 0 : 6 }}
+                  transition={{ delay: index * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={reduced ? {} : { y: -2 }}
+                  whileTap={reduced ? {} : { scale: 0.98 }}
                   className={`group rounded-xl border p-4 text-left transition-all ${
                     selected
                       ? 'border-[#EEF1F6]/50 bg-[#1A1D26] shadow-[0_12px_32px_rgba(0,0,0,0.4)]'
@@ -345,7 +365,7 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
                   <p className="mt-1.5 font-mono-craft text-[11px] text-[#768095]">
                     {entry.daysSpent} · {entry.location}
                   </p>
-                </button>
+                </motion.button>
               );
             })}
 
@@ -546,7 +566,10 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
                           backgroundSize: `${magnifiedWidth}px ${magnifiedHeight}px`,
                           backgroundPosition: afterLayerFlip === 'scaleX(-1)' ? '100% 0' : '0 0',
                           backgroundRepeat: 'no-repeat',
-                          transform: afterLayerFlip,
+                          // Prepend compensating translateX before the flip for mirrorAfter cases
+                          transform: afterLayerFlip === 'scaleX(-1)'
+                            ? `translateX(${afterFlipOffsetX}px) scaleX(-1)`
+                            : 'none',
                           transformOrigin: 'center',
                         }}
                         aria-hidden="true"

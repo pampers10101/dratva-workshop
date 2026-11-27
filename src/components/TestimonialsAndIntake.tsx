@@ -1,5 +1,5 @@
 import { Check, CheckCircle2, Copy, Gamepad2, HelpCircle, LogIn, LogOut, MapPin, Search } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { POST_RECEIPT_CARE_TIPS, SEED_REVIEWS, type SeedReview } from '../data/workshop';

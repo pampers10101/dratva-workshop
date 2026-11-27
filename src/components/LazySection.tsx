@@ -1,5 +1,6 @@
-import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { useRevealOnScroll } from '../hooks/useWorkshopMotion';
+import { type ReactNode, useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRevealOnScroll, usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 
 /**
  * Mounts its children only once they enter the viewport (rootMargin -10% gives
@@ -18,6 +19,7 @@ export function LazySection({
 }) {
   const [mounted, setMounted] = useState(false);
   const { ref, visible } = useRevealOnScroll<HTMLDivElement>();
+  const reduced = usePrefersReducedMotion();
 
   useEffect(() => {
     if (visible && !mounted) {
@@ -25,13 +27,24 @@ export function LazySection({
     }
   }, [visible, mounted]);
 
-  if (mounted) {
-    return <div ref={ref}>{children}</div>;
-  }
-
   return (
-    <div ref={ref} className={heightClass} aria-busy="true">
-      {fallback}
+    <div ref={ref} className={mounted ? '' : heightClass}>
+      <AnimatePresence mode="wait">
+        {mounted ? (
+          <motion.div
+            key="content"
+            initial={reduced ? { opacity: 1 } : { opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.215, 0.61, 0.355, 1] }}
+          >
+            {children}
+          </motion.div>
+        ) : (
+          <div key="fallback" aria-busy="true">
+            {fallback}
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

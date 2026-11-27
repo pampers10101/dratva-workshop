@@ -44,10 +44,10 @@ export interface RestorationCase {
   afterSummary: string;
   beforeImage: string;
   afterImage: string;
-  mirrorAfter?: boolean; // When true, scalesAfter layer horizontally so object orientation matches 'before'
+  mirrorAfter?: boolean; // When true, scales after layer horizontally so object orientation matches 'before'
   loupePoints: {
-    x: number;
-    y: number;
+    x: number; // Percentage 0-100 from LEFT EDGE of BEFORE image
+    y: number; // Percentage 0-100 from TOP EDGE
     label: string;
     detail: string;
   }[];

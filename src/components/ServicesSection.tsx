@@ -1,5 +1,5 @@
 import { ArrowDownRight, Check, Plus } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { SERVICES_LIST } from '../data/workshop';
 import type { LeatherItemId, RepairOperationId } from '../utils/estimator';
 

@@ -1,5 +1,5 @@
 import { Check, Tag, X } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 import {

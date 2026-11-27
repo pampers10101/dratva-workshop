@@ -1,8 +1,9 @@
 import { AlertTriangle, CheckCircle2, HelpCircle, Plus, RotateCcw, ShieldCheck } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
-import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState, useRef, useEffect } from 'react';
 import { CRAFT_QUIZ_QUESTIONS, LEATHER_EMERGENCIES } from '../data/workshop';
 import type { LeatherItemId, RepairOperationId } from '../utils/estimator';
+import { usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 
 export type CraftLoungeTab = 'emergency' | 'quiz';
 
@@ -17,7 +18,9 @@ export function CraftLoungeSection({
   onTabChange,
   onAddEmergencyRepair,
 }: CraftLoungeSectionProps) {
+  const prefersReducedMotion = usePrefersReducedMotion();
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string>(LEATHER_EMERGENCIES[0].id);
+  const sectionRef = useRef<HTMLElement>(null);
 
   // Quiz state
   const [quizIndex, setQuizIndex] = useState(0);
@@ -130,19 +133,27 @@ export function CraftLoungeSection({
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-start">
               {/* Left: Incident Selector Buttons */}
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:col-span-4 lg:grid-cols-1">
-                {LEATHER_EMERGENCIES.map((item) => {
+                <AnimatePresence mode="popLayout">
+                {LEATHER_EMERGENCIES.map((item, index) => {
                   const selected = item.id === activeEmergency.id;
                   return (
-                    <button
+                    <motion.button
                       key={item.id}
                       type="button"
                       aria-pressed={selected}
                       onClick={() => setSelectedEmergencyId(item.id)}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: prefersReducedMotion ? 0 : index * 0.05 }}
+                      layout
                       className={`flex min-h-[54px] items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-all ${
                         selected
                           ? 'border-[#E85D2A] bg-[#191D26] text-[#EEF1F6] shadow-[0_10px_28px_rgba(0,0,0,0.35)]'
                           : 'border-[rgba(220,227,239,0.12)] bg-[#13151B] text-[#C6CEDB] hover:border-[rgba(220,227,239,0.32)] hover:text-[#EEF1F6]'
                       }`}
+                      whileHover={!prefersReducedMotion && !selected ? { scale: 1.01, y: -2 } : undefined}
+                      whileTap={!prefersReducedMotion ? { scale: 0.98 } : undefined}
                     >
                       <div>
                         <span className="block text-sm font-bold">{item.label}</span>
@@ -150,16 +161,20 @@ export function CraftLoungeSection({
                           {item.urgency}
                         </span>
                       </div>
-                      <span
+                      <motion.span
+                        layoutId={selected ? 'emergency-tag' : undefined}
                         className={`font-mono-craft text-[11px] font-semibold ${
                           selected ? 'text-[#E85D2A]' : 'text-[#768095]'
                         }`}
+                        animate={selected ? { scale: 1.1 } : { scale: 1 }}
+                        transition={{ duration: prefersReducedMotion ? 0 : 0.2 }}
                       >
                         {item.shortTag}
-                      </span>
-                    </button>
+                      </motion.span>
+                    </motion.button>
                   );
                 })}
+              </AnimatePresence>
               </div>
 
               {/* Right: Instant First-Aid Triage Card */}
@@ -245,8 +260,16 @@ export function CraftLoungeSection({
             </div>
           ) : (
             /* Tab 2: 5-Question Interactive Craft Quiz («Миф или правда мастера») */
-            <div className="chrome-surface mx-auto max-w-3xl rounded-xl p-6 sm:p-8">
-              {!showSummary ? (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={showSummary ? 'summary' : 'quiz'}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -30 }}
+                transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
+                className="chrome-surface mx-auto max-w-3xl rounded-xl p-6 sm:p-8"
+              >
+                {!showSummary ? (
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-3 font-mono-craft text-xs">
                     <span className="inline-flex items-center gap-1.5 font-semibold text-[#E85D2A]">
@@ -258,15 +281,28 @@ export function CraftLoungeSection({
                     </span>
                   </div>
 
-                  {/* Progress Steps */}
-                  <div className="mt-3 grid grid-cols-5 gap-1.5" aria-hidden="true">
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        transition: { staggerChildren: prefersReducedMotion ? 0 : 0.05 }
+                      }
+                    }}
+                    className="mt-3 grid grid-cols-5 gap-1.5"
+                    aria-hidden="true"
+                  >
                     {CRAFT_QUIZ_QUESTIONS.map((q, idx) => {
                       const ans = answers[q.id];
                       const isCorrect = typeof ans === 'boolean' && ans === q.isTrue;
                       const isWrong = typeof ans === 'boolean' && ans !== q.isTrue;
                       return (
-                        <span
+                        <motion.span
                           key={q.id}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: 1 }}
+                          transition={{ duration: prefersReducedMotion ? 0 : 0.3, ease: 'easeOut' }}
                           className={`h-1.5 rounded-xs ${
                             isCorrect
                               ? 'bg-[#52E0A1]'
@@ -279,17 +315,36 @@ export function CraftLoungeSection({
                         />
                       );
                     })}
-                  </div>
+                  </motion.div>
 
-                  <h3 className="font-display mt-6 text-lg font-bold leading-snug text-[#EEF1F6] sm:text-xl">
+                  <motion.h3
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
+                    className="font-display mt-6 text-lg font-bold leading-snug text-[#EEF1F6] sm:text-xl"
+                  >
                     «{currentQuestion.statement}»
-                  </h3>
+                  </motion.h3>
 
-                  <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <button
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      visible: {
+                        transition: { staggerChildren: prefersReducedMotion ? 0 : 0.08 }
+                      }
+                    }}
+                    className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2"
+                  >
+                    <motion.button
                       type="button"
                       disabled={currentAnswered}
                       onClick={() => handleAnswer(true)}
+                      whileHover={!prefersReducedMotion && !currentAnswered ? { scale: 1.02 } : undefined}
+                      whileTap={!prefersReducedMotion ? { scale: 0.98 } : undefined}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       className={`min-h-[50px] rounded-lg border px-5 py-3 text-sm font-bold transition-all ${
                         currentAnswered && currentQuestion.isTrue
                           ? 'border-[#52E0A1] bg-[#52E0A1]/18 text-[#52E0A1]'
@@ -299,12 +354,16 @@ export function CraftLoungeSection({
                       }`}
                     >
                       Правда
-                    </button>
+                    </motion.button>
 
-                    <button
+                    <motion.button
                       type="button"
                       disabled={currentAnswered}
                       onClick={() => handleAnswer(false)}
+                      whileHover={!prefersReducedMotion && !currentAnswered ? { scale: 1.02 } : undefined}
+                      whileTap={!prefersReducedMotion ? { scale: 0.98 } : undefined}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
                       className={`min-h-[50px] rounded-lg border px-5 py-3 text-sm font-bold transition-all ${
                         currentAnswered && !currentQuestion.isTrue
                           ? 'border-[#52E0A1] bg-[#52E0A1]/18 text-[#52E0A1]'
@@ -314,13 +373,15 @@ export function CraftLoungeSection({
                       }`}
                     >
                       Миф
-                    </button>
-                  </div>
+                    </motion.button>
+                  </motion.div>
 
                   {currentAnswered && (
                     <motion.div
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.3 }}
                       data-testid="quiz-answer-explanation"
                       className="mt-5 rounded-lg border border-[rgba(220,227,239,0.16)] bg-[#0B0C10]/90 p-4"
                       style={{ overflowAnchor: 'none' }}
@@ -354,7 +415,14 @@ export function CraftLoungeSection({
                   )}
                 </div>
               ) : (
-                <div data-testid="quiz-summary" className="text-center" style={{ overflowAnchor: 'none' }}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
+                  data-testid="quiz-summary"
+                  className="text-center"
+                  style={{ overflowAnchor: 'none' }}
+                >
                   <div className="mx-auto inline-flex items-center gap-2 font-mono-craft text-xs font-bold text-[#52E0A1]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                     <span>ТЕСТ ПРОЙДЕН · {correctCount} ИЗ {CRAFT_QUIZ_QUESTIONS.length}</span>
@@ -384,9 +452,10 @@ export function CraftLoungeSection({
                       Попробовать верстак-игру (до −15%)
                     </a>
                   </div>
-                </div>
+                </motion.div>
               )}
-            </div>
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>

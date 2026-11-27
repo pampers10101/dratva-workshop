@@ -1,5 +1,5 @@
 import { ArrowDownRight, CheckCircle2, Lock, Settings, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Routes, Route } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { AboutStory } from './components/AboutStory';
@@ -25,6 +25,7 @@ import {
   type RepairOperationId,
 } from './utils/estimator';
 import type { WorkbenchOutcome } from './utils/workbenchGame';
+import { WORKSHOP_THEME_SCHEMES, applyThemeScheme, type ThemeScheme } from './utils/themes';
 
 interface ServiceToastState {
   id: number;
@@ -122,6 +123,26 @@ function useSmoothAnchorScroll() {
 
 export default function App() {
   useSmoothAnchorScroll();
+
+  // Apply the saved colour scheme from the admin panel to the main site on mount.
+  // AdminPage persists the chosen theme id in localStorage and applies it only
+  // to its own route; the main site must read the same key so the design
+  // changes are visible everywhere, not just on /admin.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    try {
+      const savedTheme = window.localStorage.getItem('dratva_admin_theme');
+      const scheme = savedTheme
+        ? WORKSHOP_THEME_SCHEMES.find((s) => s.id === savedTheme)
+        : null;
+      if (scheme) {
+        applyThemeScheme(scheme);
+      }
+    } catch {
+      // localStorage may be unavailable — fall back to default theme
+    }
+  }, []);
+
   const [itemType, setItemType] = useState<LeatherItemId>('briefcase');
   const [repairIds, setRepairIds] = useState<RepairOperationId[]>(['scuffs_dye', 'edge_handles']);
   const [activeServiceIndexes, setActiveServiceIndexes] = useState<number[]>([0]); // Track which services are explicitly toggled on

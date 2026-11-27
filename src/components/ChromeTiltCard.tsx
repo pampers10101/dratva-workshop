@@ -1,4 +1,4 @@
-import { motion, useMotionTemplate, useMotionValue, useSpring } from 'motion/react';
+import { motion, useMotionTemplate, useMotionValue, useSpring } from 'framer-motion';
 import { type MouseEvent, type ReactNode, useRef } from 'react';
 import { usePrefersReducedMotion } from '../hooks/useWorkshopMotion';
 
