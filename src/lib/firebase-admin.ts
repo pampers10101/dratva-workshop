@@ -1,6 +1,6 @@
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
-import firebaseConfig from '../../firebase-applet-config.json';
+import firebaseConfig from '../../firebase-config.json';
 
 if (!getApps().length) {
   initializeApp({
@@ -9,3 +9,4 @@ if (!getApps().length) {
 }
 
 export const adminAuth = getAuth();
+

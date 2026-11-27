@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Дратва — мастерская реставрации кожи
 
-# Run and deploy your AI Studio app
+Нео-ремесленная мастерская реставрации, покраски и ремонта кожаных сумок, курток, портфелей и обуви в Самаре. Честная оценка, ручной седельный шов, хром-фурнитура YKK Excella.
 
-This contains everything you need to run your app locally.
+## Запуск локально
 
-View your app in AI Studio: https://ai.studio/apps/bbf29b74-bef5-4264-8c72-56181cfca053
+**Требования:** Node.js 22+, PostgreSQL
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. Установите зависимости:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+
+2. Настройте переменные окружения:
+   Скопируйте `.env.example` в `.env` и заполните значения.
+
+3. Запустите приложение:
    `npm run dev`
+
+## Деплой
+
+Приложение готово к деплою на Render (Docker + PostgreSQL). См. `render.yaml`.
+
+## Структура
+
+- `src/` — исходный код (React + Express)
+- `public/` — статические ассеты
+- `docker/` — Docker-compose для локальной разработки
+- `dist/` — сборка (генерируется при `npm run build`)

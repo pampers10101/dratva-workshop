@@ -35,3 +35,4 @@ export const optionalAuth = async (req: AuthRequest, _res: Response, next: NextF
   }
   next();
 };
+

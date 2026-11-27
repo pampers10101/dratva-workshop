@@ -778,3 +778,4 @@ const afterLayerFlip = activeCase.mirrorAfter ? 'scaleX(-1)' : 'none';
     </section>
   );
 }
+

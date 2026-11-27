@@ -242,3 +242,4 @@ export function AdminPanelModal({ isOpen, onClose }: AdminPanelModalProps) {
     </div>
   );
 }
+

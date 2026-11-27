@@ -106,3 +106,4 @@ test('formatRubles and generateTicketCode produce consistent output', () => {
   assert.equal(generateTicketCode(42), 'DRT-1042');
   assert.match(generateTicketCode(), /^DRT-\d{4}$/);
 });
+

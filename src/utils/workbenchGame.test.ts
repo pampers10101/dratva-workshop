@@ -123,3 +123,4 @@ test('getStageIntermissionInfo provides accurate stage metrics and clear Stage 3
   assert.ok(stitchGate.warningNote.includes('Таймер'));
   assert.ok(stitchGate.ctaLabel.includes('прошивку'));
 });
+

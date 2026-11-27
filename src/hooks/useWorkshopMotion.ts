@@ -99,3 +99,4 @@ export function useRevealOnScroll<T extends HTMLElement>() {
 
   return { ref, visible };
 }
+

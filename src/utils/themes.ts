@@ -555,3 +555,4 @@ export function applyThemeScheme(scheme: ThemeScheme) {
     root.style.setProperty(key, value);
   }
 }
+

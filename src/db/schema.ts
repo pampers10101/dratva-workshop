@@ -60,3 +60,4 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
 export type UserRecord = typeof users.$inferSelect;
 export type RepairRequestRecord = typeof repairRequests.$inferSelect;
 export type ReviewRecord = typeof reviews.$inferSelect;
+
