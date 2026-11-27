@@ -12,6 +12,8 @@ import {
   updateRepairRequestStatus,
 } from './src/db/repository.ts';
 import { optionalAuth, requireAuth, type AuthRequest } from './src/middleware/auth.ts';
+import { ensureSchema } from './src/db/init.ts';
+import { pool } from './src/db/index.ts';
 import {
   calculateEstimate,
   generateTicketCode,
@@ -257,6 +259,13 @@ app.post('/api/account/reviews', requireAuth, async (req: AuthRequest, res) => {
 async function startServer() {
   const isProd = process.env.NODE_ENV === 'production';
   const port = Number(process.env.PORT) || 3000;
+
+  // Ensure DB tables exist
+  try {
+    await ensureSchema(pool);
+  } catch (error) {
+    console.error('Failed to ensure DB schema:', error);
+  }
 
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
