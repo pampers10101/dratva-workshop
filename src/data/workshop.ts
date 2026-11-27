@@ -84,8 +84,8 @@ export interface CraftQuizQuestion {
 }
 
 export const STUDIO_MEDIA = {
-  heroShowcase: '/src/assets/images/hero_leather_chrome_1795024456392.jpg',
-  workshopTools: '/src/assets/images/workshop_tools_3d_1795024456717.jpg',
+  heroShowcase: '/images/hero_leather_chrome_1795024456392.jpg',
+  workshopTools: '/images/workshop_tools_3d_1795024456717.jpg',
 };
 
 export const HERO_STUDIO_PRESETS: HeroStudioPreset[] = [
@@ -223,8 +223,8 @@ export const RESTORATION_CASES: RestorationCase[] = [
     afterTitle: 'После реставрации',
     afterSummary:
       'Углы укреплены и выведены анилиновым тоном, ручка перелита в 3 слоя термофилера Fenice, латунный замок отполирован и защищён воском.',
-    beforeImage: '/src/assets/images/case_briefcase_before_1795024456556.jpg',
-    afterImage: '/src/assets/images/case_briefcase_after_1795024456245.jpg',
+    beforeImage: '/images/case_briefcase_before_1795024456556.jpg',
+    afterImage: '/images/case_briefcase_after_1795024456245.jpg',
     loupePoints: [
       {
         x: 36,
@@ -261,8 +261,8 @@ export const RESTORATION_CASES: RestorationCase[] = [
     afterTitle: 'После реставрации',
     afterSummary:
       'С изнанки подклеена тонкая перчаточная кожа 0.4 мм, стык сведён под аэрограф, манжета напитана и затонирована в заводской полумат.',
-    beforeImage: '/src/assets/images/case_jacket_before_1795024456671.jpg',
-    afterImage: '/src/assets/images/case_jacket_after_1795024456036.jpg',
+    beforeImage: '/images/case_jacket_before_1795024456671.jpg',
+    afterImage: '/images/case_jacket_after_1795024456036.jpg',
     mirrorAfter: true,
     loupePoints: [
       {
@@ -300,8 +300,8 @@ export const RESTORATION_CASES: RestorationCase[] = [
     afterTitle: 'После реставрации',
     afterSummary:
       'Две мягкие вытяжки десалинизатором, глубокое жирование костным маслом, выравнивание коньячного тона и глассаж карнаубским воском.',
-    beforeImage: '/src/assets/images/case_chelsea_before_1795024456436.jpg',
-    afterImage: '/src/assets/images/case_chelsea_after_1795024457423.jpg',
+    beforeImage: '/images/case_chelsea_before_1795024456436.jpg',
+    afterImage: '/images/case_chelsea_after_1795024457423.jpg',
     mirrorAfter: true,
     loupePoints: [
       {
@@ -527,3 +527,4 @@ export const SEED_REVIEWS: SeedReview[] = [
     createdAt: '2026-09-21T09:15:00Z',
   },
 ];
+

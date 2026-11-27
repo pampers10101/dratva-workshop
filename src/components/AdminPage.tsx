@@ -98,7 +98,7 @@ const mockOrders: OrderReceipt[] = [
     actualReadyDate: null,
     masterNotes: 'Углы укреплены, ручка перелита в 3 слоя термофилера Fenice, латунный замок отполирован.',
     clientNotes: 'Ручки облезли до ниток, в двух мастерских сказали "только менять целиком"',
-    photos: ['/src/assets/images/case_briefcase_before_1795024456556.jpg', '/src/assets/images/case_briefcase_after_1795024456245.jpg'],
+    photos: ['/images/case_briefcase_before_1795024456556.jpg', '/images/case_briefcase_after_1795024456245.jpg'],
     promoCode: null,
   },
   {
@@ -142,7 +142,7 @@ const mockOrders: OrderReceipt[] = [
     actualReadyDate: '2026-09-28',
     masterNotes: 'Косуха: зацепила в лифте - скрытый порыв у кармана, манжета. Сапоги: реагенты, вытяжка соли, глассаж.',
     clientNotes: 'Зацепила рукав в лифте и угробила сапоги реагентами у метро',
-    photos: ['/src/assets/images/case_jacket_before_1795024456671.jpg', '/src/assets/images/case_jacket_after_1795024456036.jpg'],
+    photos: ['/images/case_jacket_before_1795024456671.jpg', '/images/case_jacket_after_1795024456036.jpg'],
     promoCode: 'LOYAL15',
   },
   {
@@ -164,7 +164,7 @@ const mockOrders: OrderReceipt[] = [
     actualReadyDate: null,
     masterNotes: 'Соляные разводы, заломы на сгибе, мыс выбитый. Две вытяжки десалинизатором, жирение, глассаж.',
     clientNotes: 'После двух самарских зим - белые разводы, пересохшие заломы',
-    photos: ['/src/assets/images/case_chelsea_before_1795024456436.jpg', '/src/assets/images/case_chelsea_after_1795024457423.jpg'],
+    photos: ['/images/case_chelsea_before_1795024456436.jpg', '/images/case_chelsea_after_1795024457423.jpg'],
     promoCode: null,
   },
   {
@@ -1286,3 +1286,4 @@ function FormField({ label, error, children }: { label: string; error?: string; 
     </div>
   );
 }
+

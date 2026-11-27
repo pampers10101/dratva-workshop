@@ -69,8 +69,8 @@ export interface WorkbenchOutcome {
 export const WORKBENCH_GAME_MEDIA = {
   title: 'Почтальонский саквояж · Растительная кожа',
   subtitle: 'Соль, дождевые разводы, сухие царапины и распущенный нижний шов',
-  beforeImage: '/src/assets/images/game_saddlebag_worn_1795027263030.jpg',
-  afterImage: '/src/assets/images/game_saddlebag_clean_1795027240941.jpg',
+  beforeImage: '/images/game_saddlebag_worn_1795027263030.jpg',
+  afterImage: '/images/game_saddlebag_clean_1795027240941.jpg',
 } as const;
 
 export const GAME_DIFFICULTIES: Record<GameDifficultyId, GameDifficultyConfig> = {
@@ -411,3 +411,4 @@ export function calculateWorkbenchOutcome(params: {
     improvementTip,
   };
 }
+
