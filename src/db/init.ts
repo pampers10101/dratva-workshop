@@ -6,7 +6,14 @@ import { Pool } from 'pg';
  * базе Render всё работало сразу без ручной миграции.
  */
 export async function ensureSchema(pool: Pool): Promise<void> {
-  await pool.query(`
+  // Check if pool is a real pg Pool (has query method that works)
+  if (typeof pool.query !== 'function') {
+    console.warn('[DB] Pool not configured, skipping schema creation');
+    return;
+  }
+  
+  try {
+    await pool.query(`
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   uid TEXT NOT NULL UNIQUE,
@@ -46,5 +53,10 @@ CREATE TABLE IF NOT EXISTS reviews (
   outcome_text TEXT NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
-  `);
+    `);
+    console.log('[DB] Schema ensured successfully');
+  } catch (error) {
+    console.error('[DB] Schema creation failed:', error);
+    throw error;
+  }
 }

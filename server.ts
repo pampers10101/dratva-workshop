@@ -313,7 +313,7 @@ async function startServer() {
   try {
     await ensureSchema(pool);
   } catch (error) {
-    console.error('Failed to ensure DB schema:', error);
+    console.warn('DB schema creation skipped (DB not configured yet):', error instanceof Error ? error.message : String(error));
   }
 
   if (!isProd) {

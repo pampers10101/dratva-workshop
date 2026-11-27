@@ -9,9 +9,9 @@ declare global {
 
 export const createPool = () => {
   if (!global._postgresPool) {
-    // Try to construct connection string from individual vars if DATABASE_URL not set
     let connectionString = process.env.DATABASE_URL;
     
+    // Fallback: construct from individual SQL_* vars
     if (!connectionString && process.env.SQL_HOST && process.env.SQL_USER && process.env.SQL_DB_NAME) {
       const password = process.env.SQL_PASSWORD ? `:${encodeURIComponent(process.env.SQL_PASSWORD)}` : '';
       const port = process.env.SQL_PORT ? `:${process.env.SQL_PORT}` : '';
@@ -19,23 +19,23 @@ export const createPool = () => {
       console.log('[DB] Constructed connection string from individual vars');
     }
 
-    const poolConfig = connectionString
-      ? {
-          connectionString,
-          ssl: process.env.SQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
-          max: 10,
-          connectionTimeoutMillis: 15000,
-        }
-      : {
-          host: process.env.SQL_HOST,
-          port: process.env.SQL_PORT ? Number(process.env.SQL_PORT) : 5432,
-          user: process.env.SQL_USER,
-          password: process.env.SQL_PASSWORD,
-          database: process.env.SQL_DB_NAME,
-          ssl: process.env.SQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
-          max: 10,
-          connectionTimeoutMillis: 15000,
-        };
+    if (!connectionString) {
+      console.warn('[DB] No database configuration found (DATABASE_URL or SQL_* vars missing). Pool will not connect until config is available.');
+      // Return a dummy pool that fails fast with clear error
+      global._postgresPool = {
+        query: async () => { throw new Error('Database not configured: DATABASE_URL or SQL_* env vars missing'); },
+        on: () => {},
+        end: async () => {},
+      } as any;
+      return global._postgresPool;
+    }
+
+    const poolConfig = {
+      connectionString,
+      ssl: process.env.SQL_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+      max: 10,
+      connectionTimeoutMillis: 15000,
+    };
 
     global._postgresPool = new Pool(poolConfig);
 
