@@ -54,19 +54,30 @@ app.get('/api/debug/db', async (_req, res) => {
       user: result.rows[0].user,
       tables: tables.rows.map(r => r.table_name),
       env: {
+        databaseUrl: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'NOT SET',
         hasDatabaseUrl: !!process.env.DATABASE_URL,
         nodeEnv: process.env.NODE_ENV,
-        ssl: process.env.SQL_SSL
+        ssl: process.env.SQL_SSL,
+        sqlHost: process.env.SQL_HOST,
+        sqlPort: process.env.SQL_PORT,
+        sqlDb: process.env.SQL_DB_NAME,
+        sqlUser: process.env.SQL_USER
       }
     });
   } catch (error) {
     res.status(500).json({
       connected: false,
       error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
       env: {
+        databaseUrl: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 50) + '...' : 'NOT SET',
         hasDatabaseUrl: !!process.env.DATABASE_URL,
         nodeEnv: process.env.NODE_ENV,
-        ssl: process.env.SQL_SSL
+        ssl: process.env.SQL_SSL,
+        sqlHost: process.env.SQL_HOST,
+        sqlPort: process.env.SQL_PORT,
+        sqlDb: process.env.SQL_DB_NAME,
+        sqlUser: process.env.SQL_USER
       }
     });
   }

@@ -9,7 +9,15 @@ declare global {
 
 export const createPool = () => {
   if (!global._postgresPool) {
-    const connectionString = process.env.DATABASE_URL;
+    // Try to construct connection string from individual vars if DATABASE_URL not set
+    let connectionString = process.env.DATABASE_URL;
+    
+    if (!connectionString && process.env.SQL_HOST && process.env.SQL_USER && process.env.SQL_DB_NAME) {
+      const password = process.env.SQL_PASSWORD ? `:${encodeURIComponent(process.env.SQL_PASSWORD)}` : '';
+      const port = process.env.SQL_PORT ? `:${process.env.SQL_PORT}` : '';
+      connectionString = `postgresql://${process.env.SQL_USER}${password}@${process.env.SQL_HOST}${port}/${process.env.SQL_DB_NAME}`;
+      console.log('[DB] Constructed connection string from individual vars');
+    }
 
     const poolConfig = connectionString
       ? {

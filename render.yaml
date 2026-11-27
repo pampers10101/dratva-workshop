@@ -16,6 +16,27 @@ services:
         fromDatabase:
           name: dratva-db
           property: connectionString
+      # Fallback individual vars (Render also provides these)
+      - key: SQL_HOST
+        fromDatabase:
+          name: dratva-db
+          property: host
+      - key: SQL_PORT
+        fromDatabase:
+          name: dratva-db
+          property: port
+      - key: SQL_DB_NAME
+        fromDatabase:
+          name: dratva-db
+          property: database
+      - key: SQL_USER
+        fromDatabase:
+          name: dratva-db
+          property: user
+      - key: SQL_PASSWORD
+        fromDatabase:
+          name: dratva-db
+          property: password
 
 databases:
   - name: dratva-db
