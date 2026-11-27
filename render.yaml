@@ -4,9 +4,18 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     plan: free
-    region: frankfurt
+    region: oregon
     envVars:
       - key: PORT
-        value: 3000
+        value: "3000"
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dratva-db
+          property: connectionString
+
+databases:
+  - name: dratva-db
+    plan: free
+    region: oregon
