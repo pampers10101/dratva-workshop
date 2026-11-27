@@ -40,13 +40,46 @@ app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/api/debug/db', async (_req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as time, current_database() as db, current_user as user');
+    const tables = await pool.query(`
+      SELECT table_name FROM information_schema.tables 
+      WHERE table_schema = 'public' ORDER BY table_name
+    `);
+    res.json({
+      connected: true,
+      time: result.rows[0].time,
+      database: result.rows[0].db,
+      user: result.rows[0].user,
+      tables: tables.rows.map(r => r.table_name),
+      env: {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV,
+        ssl: process.env.SQL_SSL
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      connected: false,
+      error: error instanceof Error ? error.message : String(error),
+      env: {
+        hasDatabaseUrl: !!process.env.DATABASE_URL,
+        nodeEnv: process.env.NODE_ENV,
+        ssl: process.env.SQL_SSL
+      }
+    });
+  }
+});
+
 app.get('/api/reviews', async (_req, res) => {
   try {
     const rows = await listReviews();
     res.json({ reviews: rows });
   } catch (error) {
     console.error('Failed to fetch reviews:', error);
-    res.status(500).json({ error: 'Не удалось загрузить отзывы.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    res.status(500).json({ error: 'Не удалось загрузить отзывы', detail: msg });
   }
 });
 
@@ -125,7 +158,8 @@ app.post('/api/leads', optionalAuth, async (req: AuthRequest, res) => {
     });
   } catch (error) {
     console.error('Failed to create lead:', error);
-    return res.status(500).json({ error: 'Не удалось сохранить заявку. Попробуйте чуть позже.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: 'Не удалось сохранить заявку', detail: msg });
   }
 });
 
@@ -167,7 +201,8 @@ app.get('/api/tickets/:code', async (req, res) => {
     });
   } catch (error) {
     console.error('Failed to track ticket:', error);
-    return res.status(500).json({ error: 'Не удалось проверить статус квитанции.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: 'Не удалось проверить статус квитанции', detail: msg });
   }
 });
 
@@ -181,7 +216,8 @@ app.get('/api/account/orders', requireAuth, async (req: AuthRequest, res) => {
     return res.json({ orders });
   } catch (error) {
     console.error('Failed to load user orders:', error);
-    return res.status(500).json({ error: 'Не удалось загрузить ваши квитанции.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: 'Не удалось загрузить ваши квитанции', detail: msg });
   }
 });
 
@@ -208,7 +244,8 @@ app.patch('/api/account/orders/:id/status', requireAuth, async (req: AuthRequest
     return res.json({ order: updated });
   } catch (error) {
     console.error('Failed to update order status:', error);
-    return res.status(500).json({ error: 'Не удалось обновить статус.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: 'Не удалось обновить статус', detail: msg });
   }
 });
 
@@ -252,7 +289,8 @@ app.post('/api/account/reviews', requireAuth, async (req: AuthRequest, res) => {
     return res.status(201).json({ review: saved });
   } catch (error) {
     console.error('Failed to create review:', error);
-    return res.status(500).json({ error: 'Не удалось опубликовать отзыв.' });
+    const msg = error instanceof Error ? error.message : String(error);
+    return res.status(500).json({ error: 'Не удалось опубликовать отзыв', detail: msg });
   }
 });
 
